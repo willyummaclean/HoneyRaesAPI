@@ -20,6 +20,24 @@ List<Customer> customers = new List<Customer>
         Id = 3,
         Name = "Roger Talos",
         Address = "7346 Ritchie Road"
+    },
+    new Customer()
+    {
+        Id = 4,
+        Name = "Zelda Reigns Cobbler",
+        Address = "123 Fake St"
+    },
+    new Customer()
+    {
+        Id = 5,
+        Name = "Juan Carlos Wong",
+        Address = "888 Panama Rd"
+    },
+    new Customer()
+    {
+        Id = 6,
+        Name = "Griper Bunson",
+        Address = "1244 Carlitos Way"
     }
 };
 
@@ -36,7 +54,26 @@ List<Employee> employees = new List<Employee>
         Id = 2,
         Name = "Cordon Blue",
         Specialty = "Viruses & Malware"
+    },
+    new Employee()
+    {
+        Id = 3,
+        Name = "Bunson HoneyDew",
+        Specialty = "Science"
+    },
+    new Employee()
+    {
+        Id = 4,
+        Name = "Beeker",
+        Specialty = "Beeping"
+    },
+    new Employee()
+    {
+        Id = 5,
+        Name = "Rick",
+        Specialty = "Drinking"
     }
+
 };
 
 List<ServiceTicket> serviceTickets = new List<ServiceTicket>
@@ -85,6 +122,24 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         Description = "This is a ticket",
         Emergency = true,
         DateCompleted = new DateTime(2023, 08, 05)
+    },
+    new ServiceTicket()
+    {
+        Id = 6,
+        CustomerId = 4,
+        EmployeeId = 3,
+        Description = "Gerbil in Printer",
+        Emergency = true,
+        DateCompleted = new DateTime(2022, 08, 05)
+    },
+    new ServiceTicket()
+    {
+        Id = 7,
+        CustomerId = 5,
+        EmployeeId = 4,
+        Description = "Ipod stuck on nickelback",
+        Emergency = true,
+        DateCompleted = new DateTime(2021, 01, 01)
     }
 };
 
