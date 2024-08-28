@@ -63,15 +63,19 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
     {
         Id = 3,
         CustomerId = 1,
+        EmployeeId = 2,
         Description = "This is a ticket",
-        Emergency = true
+        Emergency = true,
+        DateCompleted = null
     },
     new ServiceTicket()
     {
         Id = 4,
         CustomerId = 1,
+        EmployeeId = 2,
         Description = "This is a ticket",
-        Emergency = false
+        Emergency = false,
+        DateCompleted = null
     },
     new ServiceTicket()
     {
@@ -313,16 +317,12 @@ app.MapGet("/employees/available", () =>
 {
     List<Employee> availableBois = new List<Employee>();
     int count = 0;
-    // foreach (Employee e in employees)
-    // {
-    //     if (e.ServiceTickets.ToList().Count() == 0)
-    //     {
-    //         availableBois.Add(e);
-    //     }
-    // };
     foreach (Employee e in employees)
     {
-        foreach (ServiceTicket st in e.ServiceTickets)
+        List<ServiceTicket> employeeTickets = serviceTickets
+        .Where(st => st.EmployeeId == e.Id)
+        .ToList();
+        foreach (ServiceTicket st in employeeTickets)
         {
             if (st.DateCompleted == null)
             {
