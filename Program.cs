@@ -91,10 +91,10 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
     {
         Id = 2,
         CustomerId = 3,
-        EmployeeId = 1,
+        EmployeeId = 3,
         Description = "This is a ticket",
         Emergency = false,
-        DateCompleted = new DateTime(2023, 05, 16)
+        DateCompleted = new DateTime(2023, 08, 16)
     },
     new ServiceTicket()
     {
@@ -121,7 +121,7 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         EmployeeId = 1,
         Description = "This is a ticket",
         Emergency = true,
-        DateCompleted = new DateTime(2023, 08, 05)
+        DateCompleted = new DateTime(2024, 08, 05)
     },
     new ServiceTicket()
     {
@@ -130,7 +130,7 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         EmployeeId = 3,
         Description = "Gerbil in Printer",
         Emergency = true,
-        DateCompleted = new DateTime(2022, 08, 05)
+        DateCompleted = new DateTime(2024, 08, 05)
     },
     new ServiceTicket()
     {
@@ -139,7 +139,14 @@ List<ServiceTicket> serviceTickets = new List<ServiceTicket>
         EmployeeId = 4,
         Description = "Ipod stuck on nickelback",
         Emergency = true,
-        DateCompleted = new DateTime(2021, 01, 01)
+        DateCompleted = new DateTime(2024, 08, 01)
+    },
+      new ServiceTicket()
+    {
+        Id = 8,
+        CustomerId = 1,
+        Description = "hair dryer won't connect to wifi",
+        Emergency = false
     }
 };
 
@@ -399,8 +406,165 @@ app.MapGet("/employees/available", () =>
     });
 });
 
+app.MapGet("/customers/inactive", () =>
+{
+    List<Customer> inactiveCustomers = customers;
+    foreach (Customer c in customers)
+    {
+        List<ServiceTicket> customerTickets = serviceTickets
+        .Where(st => st.CustomerId == c.Id).ToList();
+        foreach (ServiceTicket st in customerTickets)
+        {
+            if (st.DateCompleted >= DateTime.Now.AddYears(-1))
+            {
+                inactiveCustomers.Remove(c);
+            }
+        }
+    }
+    return Results.Ok(inactiveCustomers.Select(c => new CustomerDTO
+    {
+        Id = c.Id,
+        Name = c.Name,
+        Address = c.Address
+    }));
+
+});
+
+app.MapGet("/employees/{id}/customers", (int id) =>
+{
+    Employee employee = employees.Where(e => e.Id == id).FirstOrDefault();
+    EmployeeDTO eDTO = new EmployeeDTO
+    {
+        Id = employee.Id,
+        Name = employee.Name,
+        Specialty = employee.Specialty,
+        Customers = new List<CustomerDTO>()
+    };
+    foreach (ServiceTicket tick in serviceTickets)
+    {
+        if (tick.EmployeeId == id)
+        {
+            Customer c = customers.Where(c => c.Id == tick.CustomerId).FirstOrDefault();
+            CustomerDTO employeeCustomer = new CustomerDTO
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Address = c.Address
+            };
+            eDTO.Customers.Add(employeeCustomer);
+
+        }
+    }
+    return Results.Ok(eDTO)
+    ;
+});
+
+app.MapGet("employees/ofthemonth", () =>
+{
+    List<ServiceTicket> ticketsOfTheMonth = new List<ServiceTicket>();
+    foreach (ServiceTicket ticket in serviceTickets)
+    {
+        if (ticket.DateCompleted != null)
+        {
+            String dateString = ticket.DateCompleted.ToString();
+            String month = dateString.Split('/')[0];
+            int monthInt = Int32.Parse(month);
+            if (monthInt == DateTime.Today.Month - 1)
+            {
+                ticketsOfTheMonth.Add(ticket);
+            }
+        }
+    };
+    int maxcount = 0;
+    int element_having_max_freq = 0;
+    foreach (ServiceTicket tick in ticketsOfTheMonth)
+    {
+        int count = 0;
+        foreach (Employee employee in employees)
+        {
+            if (tick.EmployeeId == employee.Id)
+            {
+                count++;
+            }
+            if (count > maxcount)
+            {
+                maxcount = count;
+                element_having_max_freq = employee.Id;
+            };
+        };
+    };
+    return Results.Ok(employees.Where(e => e.Id == element_having_max_freq)
+    .Select(e => new EmployeeDTO
+    {
+        Id = e.Id,
+        Name = e.Name,
+        Specialty = e.Specialty
+    }));
+
+
+
+});
+
+app.MapGet("tickets/bydate", () =>
+{
+    var ticketsByDate = serviceTickets
+        .Where(ticket => ticket.DateCompleted.HasValue)
+        .OrderBy(ticket => ticket.DateCompleted)
+        .ToList();
+
+    return Results.Ok(ticketsByDate.Select(t => new ServiceTicketDTO
+    {
+        Id = t.Id,
+        CustomerId = t.CustomerId,
+        EmployeeId = t.EmployeeId,
+        DateCompleted = t.DateCompleted
+    }));
+});
+
+app.MapGet("tickets/priorities", () =>
+{
+    var priorities = serviceTickets
+        .OrderByDescending(ticket => ticket.Emergency)
+        .ThenBy(ticket => ticket.EmployeeId.HasValue ? 1 : 0)
+        .ThenBy(ticket => ticket.DateCompleted)
+        .ToList();
+
+    return Results.Ok(priorities.Select(t => new ServiceTicketDTO
+    {
+        Id = t.Id,
+        CustomerId = t.CustomerId,
+        EmployeeId = t.EmployeeId,
+        DateCompleted = t.DateCompleted,
+        Emergency = t.Emergency
+    }));
+});
 
 app.Run();
+
+
+// {
+//     int maxcount = 0;
+//     int element_having_max_freq = 0;
+//     for (int i = 0; i < n; i++)
+//     {
+//         int count = 0;
+//         for (int j = 0; j < n; j++)
+//         {
+//             if (arr[i] == arr[j])
+//             {
+//                 count++;
+//             }
+//         }
+
+//         if (count > maxcount)
+//         {
+//             maxcount = count;
+//             element_having_max_freq = arr[i];
+//         }
+//     }
+
+//     return element_having_max_freq;
+// }
 
 // // Add services to the container.
 // // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

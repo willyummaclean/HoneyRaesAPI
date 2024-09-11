@@ -6,4 +6,6 @@ public class EmployeeDTO
     public string Name { get; set; }
     public string Specialty { get; set; }
     public List<ServiceTicketDTO> ServiceTickets { get; set; }
+
+    public List<CustomerDTO> Customers { get; set; }
 }
